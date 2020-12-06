@@ -68,8 +68,8 @@ void MODIFY_ACTION() {
 void ADD_MODIFIER(int* flags, func_type action) {
 	if (flags[0]) {
 		CREATE_FORMAT();
-		ADD_ACTION();
 	}
+	action();
 }
 
 
@@ -78,7 +78,7 @@ void ADD_MODIFIER(int* flags, func_type action) {
 int main(int argc, char** argv) {
 	func_type functions[3] = { ADD_ACTION, REMOVE_ACTION, MODIFY_ACTION };
 	char *argString = malloc(STR_SIZE);
-	int flags[2] = { 1, 1 };
+	int flags[2] = { 0, 0 };
 	int action = 0;
 
 	for (int i = 1; i < argc; i++) {
