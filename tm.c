@@ -9,6 +9,7 @@
 
 #define JSON_FILE_PATH "JSONPATH/todos.json"
 #define JSON_FILE fopen(JSON_FILE_PATH, "r")
+#define SAVE_JSON() json_object_to_file(JSON_FILE_PATH, root)
 
 #define STR_SIZE sizeof(char) * 200
 
@@ -26,9 +27,9 @@
 
 // TYPEDEFS
 
-typedef void (*func_type)(void);
+typedef void (*func_type)(char*);
 
-// FUNCTIONS
+	// FUNCTIONS
 
 int PARAMETER_STR_TO_INT(char* actionSTR) {
 	if(!strcmp(actionSTR, "-n"))
@@ -42,58 +43,86 @@ int PARAMETER_STR_TO_INT(char* actionSTR) {
 	return UNDEFINED;
 }
 
+json_object *CREATE_TODO(char* name, int value) {
+	json_object *todo = json_object_new_object();
+	json_object_object_add(todo, "name", json_object_new_string(name));
+	json_object_object_add(todo, "completed", json_object_new_boolean(value));
+	return todo;
+}
+
+char *GET_INPUT(char *inputName) {
+	char* input = malloc(STR_SIZE);
+	printf("%s > ", inputName);
+	fgets(input, STR_SIZE, stdin);
+	if (input[strlen(input) - 1] == '\n')
+		input[strlen(input) - 1] = '\0';
+	return input;
+}
+
 void CREATE_FORMAT() {
 	json_object *root = json_object_new_object();
 	json_object_object_add(root, "todos", json_object_new_array());
-	json_object_to_file(JSON_FILE_PATH, root);
+	SAVE_JSON();
 }
 
 // ACTIONS
 
-void ADD_ACTION() {
+void ADD_ACTION(char *parameter) {
 	json_object *root = json_object_from_file(JSON_FILE_PATH);
-	printf("%s", json_object_to_json_string(root));
+	json_object *todos = json_object_object_get(root, "todos");
+	json_object *todo = CREATE_TODO(parameter, 0);
+	json_object_array_add(todos, todo);
+	SAVE_JSON();
 }
 
-void REMOVE_ACTION() {
-	printf("REMOVING");
+void REMOVE_ACTION(char *parameter) {
+	json_object *root = json_object_from_file(JSON_FILE_PATH);
+	json_object *todos = json_object_object_get(root, "todos");
+	json_object_array_del_idx(todos, atoi(parameter), 1);
+	SAVE_JSON();
 }
 
-void MODIFY_ACTION() {
-	printf("MODIFY");
+void MODIFY_ACTION(char *parameter) {
+	json_object *root = json_object_from_file(JSON_FILE_PATH);
+	json_object *todos = json_object_object_get(root, "todos");
+	json_object *todo = json_object_array_get_idx(todos, atoi(parameter));
+	int oldBool = json_object_get_boolean(json_object_object_get(todo, "completed"));
+	json_object_set_boolean(json_object_object_get(todo, "completed"), !oldBool);
+	SAVE_JSON();
 }
 
 // MODIFIERS
 
-void ADD_MODIFIER(int* flags, func_type action) {
-	if (flags[0]) {
+void ADD_MODIFIER(int* flags, char* argument, func_type action) {
+	if (argument == NULL)
+		argument = GET_INPUT("Name");
+	if (flags[0] || JSON_FILE == NULL) 
 		CREATE_FORMAT();
-	}
-	action();
+	action(argument);
 }
-
 
 // MAIN
 
 int main(int argc, char** argv) {
 	func_type functions[3] = { ADD_ACTION, REMOVE_ACTION, MODIFY_ACTION };
-	char *argString = malloc(STR_SIZE);
+	char *argString = NULL;
 	int flags[2] = { 0, 0 };
 	int action = 0;
-
 	for (int i = 1; i < argc; i++) {
 		int parameter = PARAMETER_STR_TO_INT(argv[i]);
 		if (parameter <= 3) 
 			action = parameter;
-		else 
-			flags[parameter - 5] = !flags[parameter - 5];
-		
+		else {
+			int newIndex = parameter - 5;
+			if (newIndex <= 1)
+				flags[newIndex] = !flags[newIndex];
+			else
+				argString = argv[i];
+		}
 	}
-
 	if (action == 0) 
-		ADD_MODIFIER(flags, functions[action]);
+		ADD_MODIFIER(flags, argString, functions[action]);
 	else
-		ADD_MODIFIER(flags, functions[action - 1]);
-
+		ADD_MODIFIER(flags, argString, functions[action - 1]);
 	return 0;
 }
