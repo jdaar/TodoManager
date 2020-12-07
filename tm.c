@@ -92,7 +92,7 @@ void MODIFY_ACTION(char *parameter) {
 	int oldBool = json_object_get_boolean(json_object_object_get(todo, "completed"));
 	json_object_set_boolean(json_object_object_get(todo, "completed"), !oldBool);
 	SAVE_JSON();
-	printf("\033[21;32mFinished removing todo with index \033[1m%d\033[0m\n", atoi(parameter));
+	printf("\033[21;32mFinished modifying todo with index \033[1m%d\033[0m\n", atoi(parameter));
 }
 
 void PRINT_ALL_ACTION() {

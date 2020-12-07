@@ -20,9 +20,9 @@ clean:
 	rm -f tm.tmp.c
 
 install: all
-	mkdir -p ${LOCAL_DIR}/bin
-	cp -f tm ${LOCAL_DIR}/bin
-	chmod 755 ${LOCAL_DIR}/bin/tm
+	mkdir -p ${INSTALL_DIR}/bin
+	cp -f tm ${INSTALL_DIR}/bin
+	chmod 755 ${INSTALL_DIR}/bin/tm
 
 .PHONY: all install clean
 
