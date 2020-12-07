@@ -4,7 +4,7 @@ An app written in C made to manage todos _(Made to work on UNIX based systems)_
 
 ## Installation
 
-You just have to run the next command in your terminal _(on UNIX based systems)_
+You just have to run the next command in your terminal _(on UNIX based systems)_ *(This assuming you have the dependency json-c installed already)*
 
 ```bash
 make install
