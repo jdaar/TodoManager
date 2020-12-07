@@ -29,7 +29,7 @@
 
 typedef void (*func_type)(char*);
 
-	// FUNCTIONS
+// FUNCTIONS
 
 int PARAMETER_STR_TO_INT(char* actionSTR) {
 	if(!strcmp(actionSTR, "-n"))
@@ -91,10 +91,22 @@ void MODIFY_ACTION(char *parameter) {
 	SAVE_JSON();
 }
 
+void PRINT_ALL_ACTION() {
+	char *completedVals[2] = { "Uncompleted", "Completed" };
+	json_object *root = json_object_from_file(JSON_FILE_PATH);
+	json_object *todos = json_object_object_get(root, "todos");
+	for(int i = 0; i < json_object_array_length(todos); i++) {
+		json_object *todo = json_object_array_get_idx(todos, i);
+		const char *name = json_object_get_string(json_object_object_get(todo, "name"));
+		int completedBool = json_object_get_boolean(json_object_object_get(todo, "completed"));
+		printf("%d > %s ~ %s\n", i, name, completedVals[completedBool]);
+	}
+}
+
 // MODIFIERS
 
-void ADD_MODIFIER(int* flags, char* argument, func_type action) {
-	if (argument == NULL)
+void ADD_MODIFIER(int* flags, char* argument, func_type action, int actionidx) {
+	if (argument == NULL && actionidx != 0)
 		argument = GET_INPUT("Name");
 	if (flags[0] || JSON_FILE == NULL) 
 		CREATE_FORMAT();
@@ -110,10 +122,10 @@ int main(int argc, char** argv) {
 	int action = 0;
 	for (int i = 1; i < argc; i++) {
 		int parameter = PARAMETER_STR_TO_INT(argv[i]);
-		if (parameter <= 3) 
+		if (parameter <= NEW_FILE - 1) 
 			action = parameter;
 		else {
-			int newIndex = parameter - 5;
+			int newIndex = parameter - NEW_FILE;
 			if (newIndex <= 1)
 				flags[newIndex] = !flags[newIndex];
 			else
@@ -121,8 +133,8 @@ int main(int argc, char** argv) {
 		}
 	}
 	if (action == 0) 
-		ADD_MODIFIER(flags, argString, functions[action]);
+		ADD_MODIFIER(flags, argString, PRINT_ALL_ACTION, action);
 	else
-		ADD_MODIFIER(flags, argString, functions[action - 1]);
+		ADD_MODIFIER(flags, argString, functions[action - 1], action);
 	return 0;
 }
