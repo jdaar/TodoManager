@@ -63,6 +63,7 @@ void CREATE_FORMAT() {
 	json_object *root = json_object_new_object();
 	json_object_object_add(root, "todos", json_object_new_array());
 	SAVE_JSON();
+	printf("\033[90;1mCreated new format\033[0m\n");
 }
 
 // ACTIONS
@@ -73,6 +74,7 @@ void ADD_ACTION(char *parameter) {
 	json_object *todo = CREATE_TODO(parameter, 0);
 	json_object_array_add(todos, todo);
 	SAVE_JSON();
+	printf("\033[21;32mFinished creating todo named \033[1m%s\033[0m\n", parameter);
 }
 
 void REMOVE_ACTION(char *parameter) {
@@ -80,6 +82,7 @@ void REMOVE_ACTION(char *parameter) {
 	json_object *todos = json_object_object_get(root, "todos");
 	json_object_array_del_idx(todos, atoi(parameter), 1);
 	SAVE_JSON();
+	printf("\033[21;32mFinished removing todo with index \033[1m%d\033[0m\n", atoi(parameter));
 }
 
 void MODIFY_ACTION(char *parameter) {
@@ -89,25 +92,31 @@ void MODIFY_ACTION(char *parameter) {
 	int oldBool = json_object_get_boolean(json_object_object_get(todo, "completed"));
 	json_object_set_boolean(json_object_object_get(todo, "completed"), !oldBool);
 	SAVE_JSON();
+	printf("\033[21;32mFinished removing todo with index \033[1m%d\033[0m\n", atoi(parameter));
 }
 
 void PRINT_ALL_ACTION() {
 	char *completedVals[2] = { "Uncompleted", "Completed" };
+	char *completedColors[2] = { "\033[21;31m", "\033[21;32m" };
 	json_object *root = json_object_from_file(JSON_FILE_PATH);
 	json_object *todos = json_object_object_get(root, "todos");
 	for(int i = 0; i < json_object_array_length(todos); i++) {
 		json_object *todo = json_object_array_get_idx(todos, i);
 		const char *name = json_object_get_string(json_object_object_get(todo, "name"));
 		int completedBool = json_object_get_boolean(json_object_object_get(todo, "completed"));
-		printf("%d > %s ~ %s\n", i, name, completedVals[completedBool]);
+		printf("\033[90m%d > \033[0;1m%s \033[90m~ %s%s\n\033[0m", i, name, completedColors[completedBool], completedVals[completedBool]);
 	}
 }
 
 // MODIFIERS
 
 void ADD_MODIFIER(int* flags, char* argument, func_type action, int actionidx) {
-	if (argument == NULL && actionidx != 0)
-		argument = GET_INPUT("Name");
+	if (argument == NULL && actionidx != 0) {
+		if (actionidx == 1)
+			argument = GET_INPUT("Name");
+		else
+			argument = GET_INPUT("Index");
+	}
 	if (flags[0] || JSON_FILE == NULL) 
 		CREATE_FORMAT();
 	action(argument);
