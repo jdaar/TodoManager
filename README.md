@@ -1,30 +1,42 @@
 # Todo Manager
-An app written in C made to manage todos *(Made to work on UNIX based systems)*
+
+An app written in C made to manage todos _(Made to work on UNIX based systems)_
 
 ## Installation
-You just have to run the next command in your terminal *(on UNIX based systems)*
-`make install`
-*(Optional, but recomended)*
-`tm -N`
+
+You just have to run the next command in your terminal _(on UNIX based systems)_
+
+```bash
+make install
+```
+
+_(Optional, but recommended)_
+
+```bash
+tm -N
+```
 
 ## Make options
-`
+
+```makefile
 CC = C compiler (GCC by default)
 JSON_PATH = The path in which the JSON will be located
 INSTALL_DIR = The path in which the binary will be located
 CFLAGS = C compiler flags
-`
+```
 
 ## Commands
-`
+
+```makefile
 tm -n = Create new todo
 tm -r = Remove todo
 tm -m = Modify todo (completed value)
 tm -N = (Modifier) Create new format
-`
+```
 
 ## Examples
-`
+
+```bash
 tm -n -N "New todo"
 > Created new format
 > Finished creating todo named New todo
@@ -42,5 +54,4 @@ tm -m 1
 tm
 > 0 > Todo ~ Uncompleted
 > 1 > New todo ~ Completed
-`
-
+```
